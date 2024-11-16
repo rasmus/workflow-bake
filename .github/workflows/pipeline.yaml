@@ -32,6 +32,11 @@ on:
       dockerhub-password:
         required: false
 
+env:
+  ASPNETCORE_ENVIRONMENT: Development
+  DOTNET_ENVIRONMENT: Development
+  DOCKER_BUILDKIT: 1
+
 jobs:
   build:
     runs-on:
