@@ -1,0 +1,70 @@
+# https://docs.github.com/en/actions/sharing-automations/reusing-workflows
+
+name: pipeline
+
+on:
+  workflow_call:
+    inputs:
+      # Required ======================
+      version:
+        required: true
+        type: string
+      # Optional ======================
+      bake-convention:
+        required: false
+        default: 'default'
+        type: string      
+      bake-version:
+        required: false
+        type: string
+        default: '0.30.43-beta'
+      dotnet-version:
+        required: false
+        type: string
+        default: '8.0.x'
+      helm-version:
+        required: false
+        type: string
+        default: '3.16.2'
+    secrets:
+      github-packages-token:
+        required: true
+      dockerhub-password:
+        required: false
+
+jobs:
+  build:
+    runs-on:
+    - self-hosted
+    - ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Helm
+      uses: azure/setup-helm@v4
+      with:
+        version: '${{ inputs.helm-version }}'
+
+    - name: Install .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '${{ inputs.dotnet-version }}'
+
+    - name: Setup GitHub NuGet source
+      run: |
+        dotnet nuget add source --username rasmus --password ${{ secrets.github-packages-token }} --store-password-in-clear-text --name github-rasmus "https://nuget.pkg.github.com/rasmus/index.json" || true
+
+    - name: Bake container
+      env:
+        dockerhub_username: rasmus
+        dockerhub_password: ${{ secrets.dockerhub-password }}
+      run: |
+        dotnet tool install --global Bake --version ${{ inputs.bake-version }}
+        export PATH="$PATH:/home/ubuntu/.dotnet/tools"
+
+        bake run \
+          --convention=${{ inputs.bake-convention }} \
+          --build-version ${{ inputs.version }} \
+          --destination="nuget>github,container>rasmus,helm-chart>chart-museum@http://chart-museum.chart-museum/"
