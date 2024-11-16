@@ -32,10 +32,6 @@ on:
       dockerhub-password:
         required: false
 
-env:
-  ASPNETCORE_ENVIRONMENT: Development
-  DOTNET_ENVIRONMENT: Development
-  DOCKER_BUILDKIT: 1
 
 jobs:
   build:
@@ -71,6 +67,9 @@ jobs:
       env:
         dockerhub_username: rasmus
         dockerhub_password: ${{ secrets.dockerhub-password }}
+        ASPNETCORE_ENVIRONMENT: Development
+        DOTNET_ENVIRONMENT: Development
+        DOCKER_BUILDKIT: 1        
       run: |
         dotnet tool install --global Bake --version ${{ inputs.bake-version }}
         export PATH="$PATH:/home/ubuntu/.dotnet/tools"
