@@ -32,6 +32,7 @@ on:
       dockerhub-password:
         required: false
 
+
 jobs:
   build:
     runs-on:
@@ -47,6 +48,12 @@ jobs:
       with:
         version: '${{ inputs.helm-version }}'
 
+    - name: Docker compose up (if present)
+      run: |
+        if [ -f docker-compose.yml ]; then
+          docker-compose up --detach --wait --quiet-pull --wait-timeout 300
+        fi
+
     - name: Install .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -60,6 +67,9 @@ jobs:
       env:
         dockerhub_username: rasmus
         dockerhub_password: ${{ secrets.dockerhub-password }}
+        ASPNETCORE_ENVIRONMENT: Development
+        DOTNET_ENVIRONMENT: Development
+        DOCKER_BUILDKIT: 1        
       run: |
         dotnet tool install --global Bake --version ${{ inputs.bake-version }}
         export PATH="$PATH:/home/ubuntu/.dotnet/tools"
