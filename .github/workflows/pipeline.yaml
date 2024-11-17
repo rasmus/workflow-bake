@@ -60,7 +60,7 @@ jobs:
     - name: Print logs on failure
       if: failure()
       run: |
-        docker-compose logs -t -f --tail 512
+        docker-compose logs -t --no-color --tail 512
 
     - name: Install .NET
       uses: actions/setup-dotnet@v4
