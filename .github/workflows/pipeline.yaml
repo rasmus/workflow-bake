@@ -26,12 +26,15 @@ on:
         required: false
         type: string
         default: '3.16.2'
+      docker-compose-up-timeout:
+        required: false
+        type: number
+        default: 300
     secrets:
       github-packages-token:
         required: true
       dockerhub-password:
         required: false
-
 
 jobs:
   build:
@@ -51,13 +54,13 @@ jobs:
     - name: Docker compose up (if present)
       run: |
         if [ -f docker-compose.yml ]; then
-          docker-compose up --detach --wait --quiet-pull --wait-timeout 300
+          docker-compose up --detach --wait --quiet-pull --wait-timeout ${{ inputs.docker-compose-up-timeout }}
         fi
 
     - name: Print logs on failure
       if: failure()
       run: |
-        docker-compose logs -t -f --tail 100
+        docker-compose logs -t -f --tail 512
 
     - name: Install .NET
       uses: actions/setup-dotnet@v4
