@@ -26,6 +26,14 @@ on:
         required: false
         type: string
         default: '3.16.2'
+      kind-install:
+        required: false
+        type: boolean
+        default: false
+      kind-version:
+        required: false
+        type: string
+        default: 'v0.25.0'
       docker-compose-up-timeout:
         required: false
         type: number
@@ -54,6 +62,13 @@ jobs:
       uses: azure/setup-helm@v4
       with:
         version: '${{ inputs.helm-version }}'
+
+    - name: Install kind
+      if: inputs.kind-install
+      uses: helm/kind-action@v1
+      with:
+        install_only: true
+        version: ${{ inputs.kind-version }}
 
     - name: Docker compose up (if present)
       run: |
