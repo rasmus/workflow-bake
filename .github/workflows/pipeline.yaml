@@ -33,7 +33,7 @@ on:
       docker-compose-failed-logs-tail:
         required: false
         type: string
-        default: '512'
+        default: '512' # can be 'all'
     secrets:
       github-packages-token:
         required: true
