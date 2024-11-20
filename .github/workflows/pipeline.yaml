@@ -26,12 +26,27 @@ on:
         required: false
         type: string
         default: '3.16.2'
+      kind-install:
+        required: false
+        type: boolean
+        default: false
+      kind-version:
+        required: false
+        type: string
+        default: 'v0.25.0'
+      docker-compose-up-timeout:
+        required: false
+        type: number
+        default: 300
+      docker-compose-failed-logs-tail:
+        required: false
+        type: string
+        default: '512' # can be 'all'
     secrets:
       github-packages-token:
         required: true
       dockerhub-password:
         required: false
-
 
 jobs:
   build:
@@ -48,10 +63,18 @@ jobs:
       with:
         version: '${{ inputs.helm-version }}'
 
+    - name: Install kind
+      if: inputs.kind-install
+      uses: helm/kind-action@v1
+      with:
+        install_only: true
+        version: ${{ inputs.kind-version }}
+
     - name: Docker compose up (if present)
       run: |
         if [ -f docker-compose.yml ]; then
-          docker-compose up --detach --wait --quiet-pull --wait-timeout 300
+          echo "Docker compose file found, starting services in $PWD..."
+          docker-compose up --detach --wait --quiet-pull --wait-timeout ${{ inputs.docker-compose-up-timeout }}
         fi
 
     - name: Install .NET
@@ -78,3 +101,10 @@ jobs:
           --convention=${{ inputs.bake-convention }} \
           --build-version ${{ inputs.version }} \
           --destination="nuget>github,container>rasmus,helm-chart>chart-museum@http://chart-museum.chart-museum/"
+
+    - name: Print Docker compose logs on failure
+      if: failure()
+      run: |
+        if [ -f docker-compose.yml ]; then
+          docker-compose logs -t --no-color --tail ${{ inputs.docker-compose-failed-logs-tail }}
+        fi
