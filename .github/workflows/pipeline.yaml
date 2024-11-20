@@ -77,13 +77,6 @@ jobs:
           docker-compose up --detach --wait --quiet-pull --wait-timeout ${{ inputs.docker-compose-up-timeout }}
         fi
 
-    - name: Print Docker compose logs on failure
-      if: failure()
-      run: |
-        if [ -f docker-compose.yml ]; then
-          docker-compose logs -t --no-color --tail ${{ inputs.docker-compose-failed-logs-tail }}
-        fi
-
     - name: Install .NET
       uses: actions/setup-dotnet@v4
       with:
