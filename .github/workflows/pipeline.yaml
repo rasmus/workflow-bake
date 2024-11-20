@@ -77,10 +77,12 @@ jobs:
           docker-compose up --detach --wait --quiet-pull --wait-timeout ${{ inputs.docker-compose-up-timeout }}
         fi
 
-    - name: Print logs on failure
+    - name: Print Docker compose logs on failure
       if: failure()
       run: |
-        docker-compose logs -t --no-color --tail ${{ inputs.docker-compose-failed-logs-tail }}
+        if [ -f docker-compose.yml ]; then
+          docker-compose logs -t --no-color --tail ${{ inputs.docker-compose-failed-logs-tail }}
+        fi
 
     - name: Install .NET
       uses: actions/setup-dotnet@v4
@@ -106,3 +108,10 @@ jobs:
           --convention=${{ inputs.bake-convention }} \
           --build-version ${{ inputs.version }} \
           --destination="nuget>github,container>rasmus,helm-chart>chart-museum@http://chart-museum.chart-museum/"
+
+    - name: Print Docker compose logs on failure
+      if: failure()
+      run: |
+        if [ -f docker-compose.yml ]; then
+          docker-compose logs -t --no-color --tail ${{ inputs.docker-compose-failed-logs-tail }}
+        fi
