@@ -13,19 +13,31 @@ on:
       bake-convention:
         required: false
         default: 'default'
-        type: string      
+        type: string
       bake-version:
         required: false
         type: string
         default: '0.30.43-beta'
+      bake-destination:
+        required: false
+        default: 'nuget>github,container>rasmus,release>github,helm-chart>chart-museum@http://chart-museum.chart-museum/'
+        type: string
       dotnet-version:
         required: false
         type: string
         default: '8.0.x'
+      dotnet-environment:
+        required: false
+        type: string
+        default: 'Development'
       helm-version:
         required: false
         type: string
         default: '3.16.2'
+      helm-install:
+        required: false
+        type: boolean
+        default: true
       kind-install:
         required: false
         type: boolean
@@ -59,6 +71,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Install Helm
+      if: inputs.helm-install
       uses: azure/setup-helm@v4
       with:
         version: '${{ inputs.helm-version }}'
@@ -74,7 +87,11 @@ jobs:
       run: |
         if [ -f docker-compose.yml ]; then
           echo "Docker compose file found, starting services in $PWD..."
-          docker-compose up --detach --wait --quiet-pull --wait-timeout ${{ inputs.docker-compose-up-timeout }}
+          docker-compose up \
+            --detach \
+            --wait \
+            --quiet-pull \
+            --wait-timeout ${{ inputs.docker-compose-up-timeout }}
         fi
 
     - name: Install .NET
@@ -84,14 +101,19 @@ jobs:
 
     - name: Setup GitHub NuGet source
       run: |
-        dotnet nuget add source --username rasmus --password ${{ secrets.github-packages-token }} --store-password-in-clear-text --name github-rasmus "https://nuget.pkg.github.com/rasmus/index.json" || true
+        dotnet nuget add source \
+          --username rasmus \
+          --password ${{ secrets.github-packages-token }} \
+          --store-password-in-clear-text \
+          --name github-rasmus \
+          "https://nuget.pkg.github.com/rasmus/index.json" || true
 
-    - name: Bake container
+    - name: Bake it
       env:
         dockerhub_username: rasmus
         dockerhub_password: ${{ secrets.dockerhub-password }}
-        ASPNETCORE_ENVIRONMENT: Development
-        DOTNET_ENVIRONMENT: Development
+        ASPNETCORE_ENVIRONMENT: ${{ inputs.dotnet-environment }}
+        DOTNET_ENVIRONMENT: ${{ inputs.dotnet-environment }}
         DOCKER_BUILDKIT: 1        
       run: |
         dotnet tool install --global Bake --version ${{ inputs.bake-version }}
@@ -100,11 +122,14 @@ jobs:
         bake run \
           --convention=${{ inputs.bake-convention }} \
           --build-version ${{ inputs.version }} \
-          --destination="nuget>github,container>rasmus,helm-chart>chart-museum@http://chart-museum.chart-museum/"
+          --destination="${{ inputs.bake-destination }}"
 
     - name: Print Docker compose logs on failure
       if: failure()
       run: |
         if [ -f docker-compose.yml ]; then
-          docker-compose logs -t --no-color --tail ${{ inputs.docker-compose-failed-logs-tail }}
+          docker-compose logs \
+            -t \
+            --no-color \
+            --tail ${{ inputs.docker-compose-failed-logs-tail }}
         fi

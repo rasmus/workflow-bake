@@ -1,0 +1,14 @@
+name: pull-requests
+
+on:
+  pull_request:
+    branches:
+      - v1
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/pipeline.yaml
+    with:
+      version: 0.0.${{ github.run_number }}
+    secrets:
+      github-packages-token: ${{ secrets.GH_TOKEN_PACKAGES }}
