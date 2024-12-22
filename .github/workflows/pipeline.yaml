@@ -99,7 +99,7 @@ jobs:
           --name github-rasmus \
           "https://nuget.pkg.github.com/rasmus/index.json" || true
 
-    - name: Bake container
+    - name: Bake it
       env:
         dockerhub_username: rasmus
         dockerhub_password: ${{ secrets.dockerhub-password }}
