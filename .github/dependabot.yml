@@ -1,0 +1,19 @@
+version: 2
+registries:
+  nuget-public:
+    type: nuget-feed
+    url: https://api.nuget.org/v3/index.json
+  nuget-github:
+    type: nuget-feed
+    url: https://nuget.pkg.github.com/rasmus/index.json
+    username: rasmus
+    password: ${{ secrets.GH_TOKEN_PACKAGES }}
+
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/"
+    registries:
+      - nuget-public
+      - nuget-github
+    schedule:
+      interval: "daily"
