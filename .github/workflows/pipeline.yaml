@@ -78,7 +78,11 @@ jobs:
       run: |
         if [ -f docker-compose.yml ]; then
           echo "Docker compose file found, starting services in $PWD..."
-          docker-compose up --detach --wait --quiet-pull --wait-timeout ${{ inputs.docker-compose-up-timeout }}
+          docker-compose up \
+            --detach \
+            --wait \
+            --quiet-pull \
+            --wait-timeout ${{ inputs.docker-compose-up-timeout }}
         fi
 
     - name: Install .NET
@@ -88,7 +92,12 @@ jobs:
 
     - name: Setup GitHub NuGet source
       run: |
-        dotnet nuget add source --username rasmus --password ${{ secrets.github-packages-token }} --store-password-in-clear-text --name github-rasmus "https://nuget.pkg.github.com/rasmus/index.json" || true
+        dotnet nuget add source \
+          --username rasmus \
+          --password ${{ secrets.github-packages-token }} \
+          --store-password-in-clear-text \
+          --name github-rasmus \
+          "https://nuget.pkg.github.com/rasmus/index.json" || true
 
     - name: Bake container
       env:
