@@ -114,7 +114,8 @@ jobs:
         dockerhub_password: ${{ secrets.dockerhub-password }}
         ASPNETCORE_ENVIRONMENT: ${{ inputs.dotnet-environment }}
         DOTNET_ENVIRONMENT: ${{ inputs.dotnet-environment }}
-        DOCKER_BUILDKIT: 1        
+        DOCKER_BUILDKIT: 1
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         dotnet tool install --global Bake --version ${{ inputs.bake-version }}
         export PATH="$PATH:/home/ubuntu/.dotnet/tools"
