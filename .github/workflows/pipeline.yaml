@@ -22,6 +22,10 @@ on:
         required: false
         default: 'nuget>github,container>rasmus,release>github,helm-chart>chart-museum@http://chart-museum.chart-museum/'
         type: string
+      git-lfs:
+        required: false
+        type: boolean
+        default: true
       dotnet-version:
         required: false
         type: string
@@ -69,6 +73,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        lfs: ${{ inputs.git-lfs }}
 
     - name: Install Helm
       if: inputs.helm-install
