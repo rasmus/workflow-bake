@@ -78,6 +78,10 @@ jobs:
       group: ${{ github.head_ref || github.ref }}
       cancel-in-progress: ${{ !contains(github.ref, 'release') && inputs.cancel-in-progress }}
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
