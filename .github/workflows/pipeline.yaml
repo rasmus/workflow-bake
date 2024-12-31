@@ -75,7 +75,7 @@ jobs:
     - ubuntu-latest
 
     concurrency:
-      group: ${{ github.head_ref || github.ref }}
+      group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
       cancel-in-progress: ${{ !contains(github.ref, 'release') && inputs.cancel-in-progress }}
 
     defaults:
