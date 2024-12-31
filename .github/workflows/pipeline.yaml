@@ -17,7 +17,7 @@ on:
       bake-version:
         required: false
         type: string
-        default: '0.30.43-beta'
+        default: '0.31.44-beta'
       bake-destination:
         required: false
         default: 'nuget>github,container>rasmus,release>github,helm-chart>chart-museum@http://chart-museum.chart-museum/'
