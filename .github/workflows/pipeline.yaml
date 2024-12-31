@@ -30,6 +30,10 @@ on:
         required: false
         type: string
         default: '8.0.x'
+      cancel-in-progress:
+        required: false
+        type: boolean
+        default: true
       dotnet-environment:
         required: false
         type: string
@@ -69,6 +73,14 @@ jobs:
     runs-on:
     - self-hosted
     - ubuntu-latest
+
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+      cancel-in-progress: ${{ !contains(github.ref, 'release') && inputs.cancel-in-progress }}
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
     - name: Checkout code
