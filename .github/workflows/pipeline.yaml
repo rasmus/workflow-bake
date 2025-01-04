@@ -101,8 +101,14 @@ jobs:
         install_only: true
         version: ${{ inputs.kind-version }}
 
+    - name: Docker Hub login
+      if: ${{ inputs.dockerhub-password }}
+      run: |
+        echo "${{ inputs.dockerhub-password }}" | docker login -u rasmus --password-stdin
+
     - name: Docker compose up (if present)
       run: |
+        
         if [ -f docker-compose.yml ]; then
           echo "Docker compose file found, starting services in $PWD..."
           docker-compose up \
