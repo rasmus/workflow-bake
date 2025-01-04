@@ -10,5 +10,6 @@ jobs:
     uses: ./.github/workflows/pipeline.yaml
     with:
       version: 0.0.${{ github.run_number }}
+      self-hosted: false
     secrets:
       github-packages-token: ${{ secrets.GH_TOKEN_PACKAGES }}
