@@ -102,13 +102,13 @@ jobs:
         version: ${{ inputs.kind-version }}
 
     - name: Docker Hub login
-      if: ${{ secrets.dockerhub-password }}
       run: |
-        echo "${{ secrets.dockerhub-password }}" | docker login -u rasmus --password-stdin
+        if [ -n "${{ secrets.dockerhub-password }}" ]; then
+          echo "${{ secrets.dockerhub-password }}" | docker login -u rasmus --password-stdin
+        fi
 
     - name: Docker compose up (if present)
       run: |
-        
         if [ -f docker-compose.yml ]; then
           echo "Docker compose file found, starting services in $PWD..."
           docker-compose up \
