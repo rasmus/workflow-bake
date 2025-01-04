@@ -102,7 +102,7 @@ jobs:
         version: ${{ inputs.kind-version }}
 
     - name: Docker Hub login
-      if: secrets.dockerhub-password
+      if: ${{ secrets.dockerhub-password }}
       run: |
         echo "${{ secrets.dockerhub-password }}" | docker login -u rasmus --password-stdin
 
