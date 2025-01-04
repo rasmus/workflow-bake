@@ -54,6 +54,10 @@ on:
         required: false
         type: string
         default: 'v0.25.0'
+      self-hosted:
+        required: false
+        type: boolean
+        default: true
       docker-compose-up-timeout:
         required: false
         type: number
@@ -70,9 +74,7 @@ on:
 
 jobs:
   build:
-    runs-on:
-    - self-hosted
-    - ubuntu-latest
+    runs-on: ${{ !inputs.self-hosted && 'ubuntu-latest' || fromJSON('["self-hosted", "ubuntu-latest"]') }}
 
     concurrency:
       group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
