@@ -68,7 +68,7 @@ on:
         default: '512' # can be 'all'
     secrets:
       github-packages-token:
-        required: true
+        required: false
       dockerhub-password:
         required: false
 
@@ -127,12 +127,14 @@ jobs:
 
     - name: Setup GitHub NuGet source
       run: |
-        dotnet nuget add source \
-          --username rasmus \
-          --password ${{ secrets.github-packages-token }} \
-          --store-password-in-clear-text \
-          --name github-rasmus \
-          "https://nuget.pkg.github.com/rasmus/index.json" || true
+        if [ -n "${{ secrets.github-packages-token }}" ]; then
+          dotnet nuget add source \
+            --username rasmus \
+            --password ${{ secrets.github-packages-token }} \
+            --store-password-in-clear-text \
+            --name github-rasmus \
+            "https://nuget.pkg.github.com/rasmus/index.json" || true
+        fi
 
     - name: Bake it
       env:
