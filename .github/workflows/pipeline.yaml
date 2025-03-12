@@ -145,7 +145,7 @@ jobs:
         DOCKER_BUILDKIT: 1
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        dotnet tool install --global Bake --version ${{ inputs.bake-version }} --source https://api.nuget.org/v3/index.json
+        dotnet tool install --global Bake --version ${{ inputs.bake-version }} --add-source https://api.nuget.org/v3/index.json --verbosity diag
         export PATH="$PATH:/home/ubuntu/.dotnet/tools"
 
         bake run \
