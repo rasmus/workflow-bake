@@ -101,8 +101,8 @@ jobs:
       if: "${{ inputs.tailscale-enabled }}"
       uses: tailscale/github-action@v3
       with:
-        oauth-client-id: ${{ secrets.tailscale-oauth-client-id }}
-        oauth-secret: ${{ secrets.tailscale-oauth-client-secret }}
+        oauth-client-id: "${{ secrets.tailscale-oauth-client-id }}"
+        oauth-secret: "${{ secrets.tailscale-oauth-client-secret }}"
         tags: tag:github-actions
 
     - name: Use named exit node in Tailscale
