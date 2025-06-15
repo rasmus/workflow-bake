@@ -67,6 +67,12 @@ on:
         type: string
         default: '512' # can be 'all'
     secrets:
+      tailscale-oauth-client-id:
+        required: false
+      tailscale-oauth-client-secret:
+        required: false
+      tailscale-exit-node:
+        required: false
       github-packages-token:
         required: false
       dockerhub-password:
@@ -85,6 +91,21 @@ jobs:
         shell: bash
 
     steps:
+    # https://github.com/simonw/til/blob/main/tailscale/tailscale-github-actions.md
+    # https://github.com/tailscale/tailscale/issues/4152
+    - name: Tailscale
+      if: "${{ secrets.tailscale-oauth-client-id != '' && secrets.tailscale-oauth-client-secret != '' }}"
+      uses: tailscale/github-action@v3
+      with:
+        oauth-client-id: ${{ secrets.tailscale-oauth-client-id }}
+        oauth-secret: ${{ secrets.tailscale-oauth-client-secret }}
+        tags: tag:github-actions
+
+    - name: Use named exit node in Tailscale
+      if: "${{ secrets.tailscale-exit-node != '' && secrets.tailscale-oauth-client-id != '' && secrets.tailscale-oauth-client-secret != '' }}"
+      run: |
+        timeout 5m sudo -E tailscale set --exit-node=${{ secrets.tailscale-exit-node }} --exit-node-allow-lan-access=true
+
     - name: Checkout code
       uses: actions/checkout@v4
       with:
