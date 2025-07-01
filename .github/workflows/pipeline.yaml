@@ -92,15 +92,20 @@ jobs:
         shell: bash
 
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        lfs: ${{ inputs.git-lfs }}
+
     - name: Get Bake
       uses: actions/checkout@v4
       with:
         repository: rasmus/workflow-bake
         ref: ${{ github.workflow_sha}}
-        path: ./bake-workflow
+        path: ./.github/actions/workflow-bake
   
     - name: Run Bake
-      uses: ./bake-workflow
+      uses: ./.github/actions/workflow-bake
       with:
         # Required ======================
         version: ${{ inputs.version }}
