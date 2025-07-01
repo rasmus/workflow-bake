@@ -29,9 +29,6 @@ on:
         required: false
         default: '8.0.x'
         type: string
-      cancel-in-progress:
-        required: false
-        type: string
       dotnet-environment:
         required: false
         default: 'Development'
@@ -50,10 +47,6 @@ on:
         required: false
         default: 'v0.25.0'
         type: string
-      self-hosted:
-        required: false
-        default: true
-        type: string
       docker-compose-up-timeout:
         required: false
         default: '300'
@@ -65,6 +58,15 @@ on:
       tailscale-enabled:
         required: false
         type: string
+      # Workflow inputs ======================
+      cancel-in-progress:
+        required: false
+        type: boolean
+        default: true
+      self-hosted:
+        required: false
+        default: true
+        type: boolean
     secrets:
       tailscale-oauth-client-id:
         required: false
