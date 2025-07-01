@@ -97,10 +97,10 @@ jobs:
       with:
         repository: rasmus/workflow-bake
         ref: ${{ github.workflow_sha}}
-        path: ${{ github.workspace }}/.github-actions-workflow-bake
+        path: ${{ github.workspace }}/bake-workflow
   
     - name: Run Bake
-      uses: ./.github-actions-workflow-bake
+      uses: ./bake-workflow
       with:
         # Required ======================
         version: ${{ inputs.version }}
