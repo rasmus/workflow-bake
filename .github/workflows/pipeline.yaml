@@ -92,13 +92,14 @@ jobs:
         shell: bash
 
     steps:
-    - name: Get Bake action
+    - name: Get Bake
       uses: actions/checkout@v4
       with:
         repository: rasmus/workflow-bake
         ref: ${{ github.workflow_sha}}
         path: ./.github-actions-workflow-bake
-    - name: Run Bake action
+  
+    - name: Run Bake
       uses: ./.github-actions-workflow-bake
       with:
         # Required ======================
