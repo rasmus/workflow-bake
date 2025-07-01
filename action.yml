@@ -59,7 +59,7 @@ inputs:
     required: false
     type: boolean
     default: false
-secrets:
+  # Secrets ======================
   tailscale-oauth-client-id:
     required: false
   tailscale-oauth-client-secret:
@@ -80,14 +80,14 @@ runs:
     if: "${{ inputs.tailscale-enabled }}"
     uses: tailscale/github-action@v3
     with:
-      oauth-client-id: "${{ secrets.tailscale-oauth-client-id }}"
-      oauth-secret: "${{ secrets.tailscale-oauth-client-secret }}"
+      oauth-client-id: "${{ inputs.tailscale-oauth-client-id }}"
+      oauth-secret: "${{ inputs.tailscale-oauth-client-secret }}"
       tags: tag:github-actions
 
   - name: Use named exit node in Tailscale
     if: "${{ inputs.tailscale-enabled }}"
     run: |
-      timeout 5m sudo -E tailscale set --exit-node=${{ secrets.tailscale-exit-node }} --exit-node-allow-lan-access=true
+      timeout 5m sudo -E tailscale set --exit-node=${{ inputs.tailscale-exit-node }} --exit-node-allow-lan-access=true
 
   - name: Checkout code
     uses: actions/checkout@v4
@@ -109,8 +109,8 @@ runs:
 
   - name: Docker Hub login
     run: |
-      if [ -n "${{ secrets.dockerhub-password }}" ]; then
-        echo "${{ secrets.dockerhub-password }}" | docker login -u rasmus --password-stdin
+      if [ -n "${{ inputs.dockerhub-password }}" ]; then
+        echo "${{ inputs.dockerhub-password }}" | docker login -u rasmus --password-stdin
       fi
 
   - name: Docker compose up (if present)
@@ -131,10 +131,10 @@ runs:
 
   - name: Setup GitHub NuGet source
     run: |
-      if [ -n "${{ secrets.github-packages-token }}" ]; then
+      if [ -n "${{ inputs.github-packages-token }}" ]; then
         dotnet nuget add source \
           --username rasmus \
-          --password ${{ secrets.github-packages-token }} \
+          --password ${{ inputs.github-packages-token }} \
           --store-password-in-clear-text \
           --name github-rasmus \
           "https://nuget.pkg.github.com/rasmus/index.json" || true
@@ -143,11 +143,11 @@ runs:
   - name: Bake it
     env:
       dockerhub_username: rasmus
-      dockerhub_password: ${{ secrets.dockerhub-password }}
+      dockerhub_password: ${{ inputs.dockerhub-password }}
       ASPNETCORE_ENVIRONMENT: ${{ inputs.dotnet-environment }}
       DOTNET_ENVIRONMENT: ${{ inputs.dotnet-environment }}
       DOCKER_BUILDKIT: 1
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     run: |
       dotnet tool install --global Bake --version ${{ inputs.bake-version }} --add-source https://api.nuget.org/v3/index.json --verbosity diag
       export PATH="$PATH:/home/ubuntu/.dotnet/tools"

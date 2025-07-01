@@ -104,7 +104,9 @@ jobs:
     - name: Run Bake action
       uses: ./.github/actions/workflow-bake
       with:
+        # Required ======================
         version: ${{ inputs.version }}
+        # Optional ======================
         bake-convention: ${{ inputs.bake-convention }}
         bake-version: ${{ inputs.bake-version }}
         bake-destination: ${{ inputs.bake-destination }}
@@ -118,7 +120,7 @@ jobs:
         docker-compose-up-timeout: ${{ inputs.docker-compose-up-timeout }}
         docker-compose-failed-logs-tail: ${{ inputs.docker-compose-failed-logs-tail }}
         tailscale-enabled: ${{ inputs.tailscale-enabled }}
-      secrets:
+        # Secrets ======================
         tailscale-oauth-client-id: ${{ secrets.tailscale-oauth-client-id }}
         tailscale-oauth-client-secret: ${{ secrets.tailscale-oauth-client-secret }}
         tailscale-exit-node: ${{ secrets.tailscale-exit-node }}
