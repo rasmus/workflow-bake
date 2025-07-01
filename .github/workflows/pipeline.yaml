@@ -13,43 +13,58 @@ on:
       bake-convention:
         required: false
         default: 'default'
+        type: string
       bake-version:
         required: false
         default: '0.37.51'
+        type: string
       bake-destination:
         required: false
         default: 'nuget>github,container>rasmus,release>github,helm-chart>chart-museum@http://chart-museum.chart-museum/'
+        type: string
       git-lfs:
         required: false
+        type: string
       dotnet-version:
         required: false
         default: '8.0.x'
+        type: string
       cancel-in-progress:
         required: false
+        type: string
       dotnet-environment:
         required: false
         default: 'Development'
+        type: string
       helm-version:
         required: false
         default: '3.16.2'
+        type: string
       helm-install:
         required: false
+        type: string
       kind-install:
         required: false
+        type: string
       kind-version:
         required: false
         default: 'v0.25.0'
+        type: string
       self-hosted:
         required: false
         default: true
+        type: string
       docker-compose-up-timeout:
         required: false
         default: '300'
+        type: string
       docker-compose-failed-logs-tail:
         required: false
         default: '512' # can be 'all'
+        type: string
       tailscale-enabled:
         required: false
+        type: string
     secrets:
       tailscale-oauth-client-id:
         required: false
