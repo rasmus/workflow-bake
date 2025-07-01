@@ -16,60 +16,57 @@ on:
         type: string
       bake-version:
         required: false
-        type: string
         default: '0.37.51'
+        type: string
       bake-destination:
         required: false
         default: 'nuget>github,container>rasmus,release>github,helm-chart>chart-museum@http://chart-museum.chart-museum/'
         type: string
       git-lfs:
         required: false
-        type: boolean
-        default: true
+        type: string
       dotnet-version:
         required: false
-        type: string
         default: '8.0.x'
+        type: string
+      dotnet-environment:
+        required: false
+        default: 'Development'
+        type: string
+      helm-version:
+        required: false
+        default: '3.16.2'
+        type: string
+      helm-install:
+        required: false
+        type: string
+      kind-install:
+        required: false
+        type: string
+      kind-version:
+        required: false
+        default: 'v0.25.0'
+        type: string
+      docker-compose-up-timeout:
+        required: false
+        default: '300'
+        type: string
+      docker-compose-failed-logs-tail:
+        required: false
+        default: '512' # can be 'all'
+        type: string
+      tailscale-enabled:
+        required: false
+        type: string
+      # Workflow inputs ======================
       cancel-in-progress:
         required: false
         type: boolean
         default: true
-      dotnet-environment:
-        required: false
-        type: string
-        default: 'Development'
-      helm-version:
-        required: false
-        type: string
-        default: '3.16.2'
-      helm-install:
-        required: false
-        type: boolean
-        default: true
-      kind-install:
-        required: false
-        type: boolean
-        default: false
-      kind-version:
-        required: false
-        type: string
-        default: 'v0.25.0'
       self-hosted:
         required: false
-        type: boolean
         default: true
-      docker-compose-up-timeout:
-        required: false
-        type: number
-        default: 300
-      docker-compose-failed-logs-tail:
-        required: false
-        type: string
-        default: '512' # can be 'all'
-      tailscale-enabled:
-        required: false
         type: boolean
-        default: false
     secrets:
       tailscale-oauth-client-id:
         required: false
@@ -95,95 +92,40 @@ jobs:
         shell: bash
 
     steps:
-    # https://github.com/simonw/til/blob/main/tailscale/tailscale-github-actions.md
-    # https://github.com/tailscale/tailscale/issues/4152
-    - name: Tailscale
-      if: "${{ inputs.tailscale-enabled }}"
-      uses: tailscale/github-action@v3
-      with:
-        oauth-client-id: "${{ secrets.tailscale-oauth-client-id }}"
-        oauth-secret: "${{ secrets.tailscale-oauth-client-secret }}"
-        tags: tag:github-actions
-
-    - name: Use named exit node in Tailscale
-      if: "${{ inputs.tailscale-enabled }}"
-      run: |
-        timeout 5m sudo -E tailscale set --exit-node=${{ secrets.tailscale-exit-node }} --exit-node-allow-lan-access=true
-
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         lfs: ${{ inputs.git-lfs }}
 
-    - name: Install Helm
-      if: inputs.helm-install
-      uses: azure/setup-helm@v4
+    - name: Get Bake
+      uses: actions/checkout@v4
       with:
-        version: '${{ inputs.helm-version }}'
-
-    - name: Install kind
-      if: inputs.kind-install
-      uses: helm/kind-action@v1
+        repository: rasmus/workflow-bake
+        ref: ${{ github.workflow_sha}}
+        path: ./.github/actions/workflow-bake
+  
+    - name: Run Bake
+      uses: ./.github/actions/workflow-bake
       with:
-        install_only: true
-        version: ${{ inputs.kind-version }}
-
-    - name: Docker Hub login
-      run: |
-        if [ -n "${{ secrets.dockerhub-password }}" ]; then
-          echo "${{ secrets.dockerhub-password }}" | docker login -u rasmus --password-stdin
-        fi
-
-    - name: Docker compose up (if present)
-      run: |
-        if [ -f docker-compose.yml ]; then
-          echo "Docker compose file found, starting services in $PWD..."
-          docker-compose up \
-            --detach \
-            --wait \
-            --quiet-pull \
-            --wait-timeout ${{ inputs.docker-compose-up-timeout }}
-        fi
-
-    - name: Install .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '${{ inputs.dotnet-version }}'
-
-    - name: Setup GitHub NuGet source
-      run: |
-        if [ -n "${{ secrets.github-packages-token }}" ]; then
-          dotnet nuget add source \
-            --username rasmus \
-            --password ${{ secrets.github-packages-token }} \
-            --store-password-in-clear-text \
-            --name github-rasmus \
-            "https://nuget.pkg.github.com/rasmus/index.json" || true
-        fi
-
-    - name: Bake it
-      env:
-        dockerhub_username: rasmus
-        dockerhub_password: ${{ secrets.dockerhub-password }}
-        ASPNETCORE_ENVIRONMENT: ${{ inputs.dotnet-environment }}
-        DOTNET_ENVIRONMENT: ${{ inputs.dotnet-environment }}
-        DOCKER_BUILDKIT: 1
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        dotnet tool install --global Bake --version ${{ inputs.bake-version }} --add-source https://api.nuget.org/v3/index.json --verbosity diag
-        export PATH="$PATH:/home/ubuntu/.dotnet/tools"
-
-        bake run \
-          --convention=${{ inputs.bake-convention }} \
-          --build-version ${{ inputs.version }} \
-          --destination="${{ inputs.bake-destination }}"
-
-    - name: Print Docker compose logs on failure
-      if: failure()
-      run: |
-        if [ -f docker-compose.yml ]; then
-          docker-compose logs \
-            -t \
-            --no-color \
-            --tail ${{ inputs.docker-compose-failed-logs-tail }}
-        fi
+        # Required ======================
+        version: ${{ inputs.version }}
+        # Optional ======================
+        bake-convention: ${{ inputs.bake-convention }}
+        bake-version: ${{ inputs.bake-version }}
+        bake-destination: ${{ inputs.bake-destination }}
+        git-lfs: ${{ inputs.git-lfs }}
+        dotnet-version: ${{ inputs.dotnet-version }}
+        dotnet-environment: ${{ inputs.dotnet-environment }}
+        helm-version: ${{ inputs.helm-version }}
+        helm-install: ${{ inputs.helm-install }}
+        kind-install: ${{ inputs.kind-install }}
+        kind-version: ${{ inputs.kind-version }}
+        docker-compose-up-timeout: ${{ inputs.docker-compose-up-timeout }}
+        docker-compose-failed-logs-tail: ${{ inputs.docker-compose-failed-logs-tail }}
+        tailscale-enabled: ${{ inputs.tailscale-enabled }}
+        # Secrets ======================
+        tailscale-oauth-client-id: ${{ secrets.tailscale-oauth-client-id }}
+        tailscale-oauth-client-secret: ${{ secrets.tailscale-oauth-client-secret }}
+        tailscale-exit-node: ${{ secrets.tailscale-exit-node }}
+        github-packages-token: ${{ secrets.github-packages-token }}
+        dockerhub-password: ${{ secrets.dockerhub-password }}
