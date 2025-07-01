@@ -77,7 +77,7 @@ runs:
   # https://github.com/simonw/til/blob/main/tailscale/tailscale-github-actions.md
   # https://github.com/tailscale/tailscale/issues/4152
   - name: Tailscale
-    if: "${{ inputs.tailscale-enabled }}"
+    if: inputs.tailscale-enabled
     uses: tailscale/github-action@v3
     with:
       oauth-client-id: "${{ inputs.tailscale-oauth-client-id }}"
@@ -85,7 +85,7 @@ runs:
       tags: tag:github-actions
 
   - name: Use named exit node in Tailscale
-    if: "${{ inputs.tailscale-enabled }}"
+    if: inputs.tailscale-enabled
     shell: bash
     run: |
       timeout 5m sudo -E tailscale set --exit-node=${{ inputs.tailscale-exit-node }} --exit-node-allow-lan-access=true
