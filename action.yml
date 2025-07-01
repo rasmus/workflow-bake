@@ -86,6 +86,7 @@ runs:
 
   - name: Use named exit node in Tailscale
     if: "${{ inputs.tailscale-enabled }}"
+    shell: bash
     run: |
       timeout 5m sudo -E tailscale set --exit-node=${{ inputs.tailscale-exit-node }} --exit-node-allow-lan-access=true
 
@@ -108,12 +109,14 @@ runs:
       version: ${{ inputs.kind-version }}
 
   - name: Docker Hub login
+    shell: bash
     run: |
       if [ -n "${{ inputs.dockerhub-password }}" ]; then
         echo "${{ inputs.dockerhub-password }}" | docker login -u rasmus --password-stdin
       fi
 
   - name: Docker compose up (if present)
+    shell: bash
     run: |
       if [ -f docker-compose.yml ]; then
         echo "Docker compose file found, starting services in $PWD..."
@@ -130,6 +133,7 @@ runs:
       dotnet-version: '${{ inputs.dotnet-version }}'
 
   - name: Setup GitHub NuGet source
+    shell: bash
     run: |
       if [ -n "${{ inputs.github-packages-token }}" ]; then
         dotnet nuget add source \
@@ -148,6 +152,7 @@ runs:
       DOTNET_ENVIRONMENT: ${{ inputs.dotnet-environment }}
       DOCKER_BUILDKIT: 1
       GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+    shell: bash
     run: |
       dotnet tool install --global Bake --version ${{ inputs.bake-version }} --add-source https://api.nuget.org/v3/index.json --verbosity diag
       export PATH="$PATH:/home/ubuntu/.dotnet/tools"
@@ -159,6 +164,7 @@ runs:
 
   - name: Print Docker compose logs on failure
     if: failure()
+    shell: bash
     run: |
       if [ -f docker-compose.yml ]; then
         docker-compose logs \
