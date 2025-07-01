@@ -95,8 +95,14 @@ jobs:
         shell: bash
 
     steps:
-    - name: Run Bake
-      uses: rasmus/workflow-bake@${{ github.workflow_sha }}
+    - name: Get Bake action
+      uses: actions/checkout@v4
+      with:
+        repository: rasmus/workflow-bake
+        ref: ${{ github.workflow_sha}}
+        path: ./.github/actions/workflow-bake
+    - name: Run Bake action
+      uses: ./.github/actions/workflow-bake
       with:
         version: ${{ inputs.version }}
         bake-convention: ${{ inputs.bake-convention }}
