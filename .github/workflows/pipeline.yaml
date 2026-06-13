@@ -20,7 +20,7 @@ on:
         default: '0.40.54'
       bake-destination:
         required: false
-        default: 'nuget>github,container>rasmus,release>github,helm-chart>chart-museum@http://chart-museum.chart-museum/'
+        default: 'nuget>github,container>rasmus,release>github,helm-chart>chart-museum@http://chart-museum.chart-museum.svc.cluster.local/'
         type: string
       git-lfs:
         required: false
